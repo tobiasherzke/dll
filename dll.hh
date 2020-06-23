@@ -15,6 +15,15 @@ namespace t::plugins::dll {
 
         /** Bandwidth of block update rate */
         float B;
+
+        /** 0th order parameter, always 0 */
+        static constexpr float a = 0.0f;
+
+        /** 1st order parameter, sqrt(2)2piB/F */
+        float b;
+
+        /** 2nd order parameter, (2piB/F)^2 */
+        float c;
     };
 
     /** Interface class of MHA plugin which implements the time smoothing filter

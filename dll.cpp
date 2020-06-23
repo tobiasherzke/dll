@@ -6,6 +6,8 @@ namespace dll = t::plugins::dll;
 dll::cfg_t::cfg_t(const mhaconfig_t & signal_dimensions, float bandwidth)
     : F(signal_dimensions.srate / signal_dimensions.fragsize)
     , B(bandwidth)
+    , b(sqrtf(8) * float(M_PI) * B / F)
+    , c(b*b/2)
 {}
 
 dll::if_t::if_t(const algo_comm_t & algo_comm,

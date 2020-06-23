@@ -50,6 +50,13 @@ TEST(if_t, prepare_propagates_correct_parameters) {
     EXPECT_EQ(signal_dimensions.srate / signal_dimensions.fragsize, cfg->F);
     // test bandwidth
     EXPECT_EQ(1.0f, cfg->B);
+    // test 0th order parameter, always 0
+    EXPECT_EQ(0.0f, cfg->a);
+    float omega = 2*M_PI*cfg->B/cfg->F;
+    // test 1st order parameter
+    EXPECT_EQ(sqrtf(2)*omega, cfg->b);
+    // test 2nd order parameter
+    EXPECT_EQ(omega*omega, cfg->c);
 }
 
 // Local variables:
