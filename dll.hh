@@ -49,7 +49,9 @@ namespace t::plugins::dll {
         MHA_AC::double_t filtered_time;
 
         MHAParser::float_t bandwidth =
-            {"Bandwidth of the delay-locked-loop in Hz." ,"1", "]0,]"};
+            {"Bandwidth of the delay-locked-loop in Hz." ,"NaN", "]0,]"};
+
+        virtual void update(void);
     };
 }
 // Local variables:

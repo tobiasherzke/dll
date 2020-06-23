@@ -14,6 +14,8 @@ dll::if_t::if_t(const algo_comm_t & algo_comm,
                     std::numeric_limits<double>::quiet_NaN())
 {
     (void) thread_name;
+    insert_member(bandwidth);
+    patchbay.connect(&bandwidth.writeaccess, this, &if_t::update);
 }
 
 void dll::if_t::prepare(mhaconfig_t& tf)
@@ -23,6 +25,12 @@ void dll::if_t::prepare(mhaconfig_t& tf)
 
 void dll::if_t::release()
 {
+}
+
+void dll::if_t::update()
+{
+    if (is_prepared())
+        push_config(new cfg_t());
 }
 
 mha_wave_t* dll::if_t::process(mha_wave_t* s)

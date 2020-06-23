@@ -4,8 +4,8 @@ CXXFLAGS += -I/usr/include/openmha -Igoogletest/include
 LDLIBS += -lopenmha -pthread
 dll.so: dll.o
 	$(CXX) -shared -o $@ $(CXXFLAGS) $^ $(LDFLAGS) $(LDLIBS)
-%.o: %.cpp dll.hh
-
+dll.o: dll.cpp dll.hh
+dll_unit_tests.o: dll_unit_tests.cpp dll.hh
 unit-tests: unit-test-runner
 	./unit-test-runner
 GTESTLIBS = $(patsubst %, googletest/lib/lib%.a, gmock_main gmock gtest)
