@@ -1,10 +1,16 @@
-# Compiled Object files
+# Compiled object files
 *.o
 
-# Compiled Dynamic libraries
+# Compiled dynamic libraries
 *.so
 *.dylib
 *.dll
 
+# Compiled executables
+unit-test-runner
+
 # Editor backup files
 *~
+
+# Dynamically retrieved googletest git repository
+googletest
