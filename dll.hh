@@ -8,7 +8,10 @@ namespace t::plugins::dll {
         http://kokkinizita.linuxaudio.org/papers/usingdll.pdf */
     class cfg_t {
     public:
-        cfg_t() = default;
+        cfg_t(const mhaconfig_t & signal_dimensions);
+
+        /** Block update rate / Hz */
+        float F;
     };
 
     /** Interface class of MHA plugin which implements the time smoothing filter

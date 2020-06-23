@@ -3,6 +3,10 @@
 
 namespace dll = t::plugins::dll;
 
+dll::cfg_t::cfg_t(const mhaconfig_t & signal_dimensions)
+    : F(signal_dimensions.srate / signal_dimensions.fragsize)
+{}
+
 dll::if_t::if_t(const algo_comm_t & algo_comm,
                         const std::string & thread_name,
                         const std::string & algo_name)
@@ -33,7 +37,7 @@ void dll::if_t::release()
 void dll::if_t::update()
 {
     if (is_prepared())
-        push_config(new cfg_t());
+        push_config(new cfg_t(input_cfg()));
 }
 
 mha_wave_t* dll::if_t::process(mha_wave_t* s)
