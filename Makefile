@@ -4,7 +4,7 @@ CXXFLAGS += -I/usr/include/openmha -Igoogletest/include
 LDLIBS += -lopenmha -pthread
 dll.so: dll.o
 	$(CXX) -shared -o $@ $(CXXFLAGS) $^ $(LDFLAGS) $(LDLIBS)
-dll.o: dll.cpp dll.hh
+%.o: %.cpp dll.hh
 
 unit-tests: unit-test-runner
 	./unit-test-runner

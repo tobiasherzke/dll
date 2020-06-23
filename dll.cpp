@@ -1,10 +1,12 @@
 #include <time.h>
 #include "dll.hh"
 
-dll_if_t::dll_if_t(const algo_comm_t & algo_comm,
-             const std::string & thread_name,
-             const std::string & algo_name)
-    : MHAPlugin::plugin_t<dll_t>("Gets current time in seconds during each"
+namespace dll = t::plugins::dll;
+
+dll::if_t::if_t(const algo_comm_t & algo_comm,
+                        const std::string & thread_name,
+                        const std::string & algo_name)
+    : MHAPlugin::plugin_t<cfg_t>("Gets current time in seconds during each"
                                  " process callback, filters it and publishes"
                                  " the result as an AC variable ("
                                  + algo_name + ")",
@@ -15,16 +17,16 @@ dll_if_t::dll_if_t(const algo_comm_t & algo_comm,
     (void) thread_name;
 }
 
-void dll_if_t::prepare(mhaconfig_t& tf)
+void dll::if_t::prepare(mhaconfig_t& tf)
 {
     filtered_time.data = std::numeric_limits<double>::quiet_NaN();
 }
 
-void dll_if_t::release()
+void dll::if_t::release()
 {
 }
 
-mha_wave_t* dll_if_t::process(mha_wave_t* s)
+mha_wave_t* dll::if_t::process(mha_wave_t* s)
 {
     struct timespec time_spec = {.tv_sec = 0, .tv_nsec = 0};
     int err = clock_gettime(CLOCK_REALTIME, &time_spec);
@@ -35,13 +37,13 @@ mha_wave_t* dll_if_t::process(mha_wave_t* s)
     return s;
 }
 
-mha_spec_t* dll_if_t::process(mha_spec_t* s)
+mha_spec_t* dll::if_t::process(mha_spec_t* s)
 {
     return s;
 }
 
-MHAPLUGIN_CALLBACKS(dll,dll_if_t,wave,wave)
-MHAPLUGIN_PROC_CALLBACK(dll,dll_if_t,spec,spec)
+MHAPLUGIN_CALLBACKS(dll,dll::if_t,wave,wave)
+MHAPLUGIN_PROC_CALLBACK(dll,dll::if_t,spec,spec)
 
 MHAPLUGIN_DOCUMENTATION\
 (dll,
