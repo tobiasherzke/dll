@@ -21,6 +21,9 @@ dll::if_t::if_t(const algo_comm_t & algo_comm,
 void dll::if_t::prepare(mhaconfig_t& tf)
 {
     filtered_time.data = std::numeric_limits<double>::quiet_NaN();
+    if (isnanf(bandwidth.data))
+        bandwidth.data = 19.2f / tf.fragsize;
+    update();
 }
 
 void dll::if_t::release()
