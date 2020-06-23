@@ -46,7 +46,10 @@ TEST(if_t, prepare_propagates_correct_parameters) {
     dll.prepare_(signal_dimensions);
     // Next line tests also that the namespace exists!
     t::plugins::dll::cfg_t * cfg = dll.poll_config();
+    // test block update rate
     EXPECT_EQ(signal_dimensions.srate / signal_dimensions.fragsize, cfg->F);
+    // test bandwidth
+    EXPECT_EQ(1.0f, cfg->B);
 }
 
 // Local variables:
