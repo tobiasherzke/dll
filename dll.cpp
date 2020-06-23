@@ -8,8 +8,7 @@ dll::if_t::if_t(const algo_comm_t & algo_comm,
                         const std::string & algo_name)
     : MHAPlugin::plugin_t<cfg_t>("Gets current time in seconds during each"
                                  " process callback, filters it and publishes"
-                                 " the result as an AC variable ("
-                                 + algo_name + ")",
+                                 " the result as AC variable " + algo_name,
                                  algo_comm)
     , filtered_time(algo_comm, algo_name,
                     std::numeric_limits<double>::quiet_NaN())

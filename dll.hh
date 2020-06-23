@@ -41,6 +41,9 @@ namespace t::plugins::dll {
         /** Empty implementation of release. */
         void release();
 
+        /** Connects configuration events to actions. */
+        MHAEvents::patchbay_t<if_t> patchbay;
+        
         /** Time of buffer start filtered with a delay locked loop published as
          * AC variable */
         MHA_AC::double_t filtered_time;
