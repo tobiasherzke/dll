@@ -47,6 +47,9 @@ namespace t::plugins::dll {
         /** Time of buffer start filtered with a delay locked loop published as
          * AC variable */
         MHA_AC::double_t filtered_time;
+
+        MHAParser::float_t bandwidth =
+            {"Bandwidth of the delay-locked-loop in Hz." ,"1", "]0,]"};
     };
 }
 // Local variables:

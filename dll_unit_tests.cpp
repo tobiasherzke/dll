@@ -6,9 +6,10 @@ TEST(cfg_t, class_lives_in_plugin_namespace) {
   (void) cfg;
 }
 
-TEST(if_t, has_patchbay) {
+TEST(if_t, has_patchbay_bandwidth) {
   t::plugins::dll::if_t * dll = nullptr;
   (void) dll->patchbay;
+  (void) dll->bandwidth;
 }
 
 // Local variables:
