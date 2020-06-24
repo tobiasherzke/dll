@@ -26,6 +26,20 @@ dll::cfg_t::cfg_t(const mhaconfig_t & signal_dimensions,
     checkassignclocksource(CLOCK_THREAD_CPUTIME_ID);
 }
 
+double dll::cfg_t::process()
+{
+    struct timespec timespec = {.tv_sec = 0, .tv_nsec = 0};
+    double unfiltered_time = std::numeric_limits<double>::quiet_NaN();
+    if (clock_gettime(clock_source, &timespec) == 0)
+        unfiltered_time = timespec.tv_sec + timespec.tv_nsec * 1e-9;
+    return filter_time(unfiltered_time);
+}
+
+double dll::cfg_t::filter_time(double unfiltered_time)
+{
+    return unfiltered_time;
+}
+
 dll::if_t::if_t(const algo_comm_t & algo_comm,
                         const std::string & thread_name,
                         const std::string & algo_name)

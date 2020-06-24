@@ -98,6 +98,21 @@ TEST_F(if_t_fixture, propagate_clock_sources) {
     }
 }
 
+TEST(cfg_t, process_queries_correct_clock) {
+    const mhaconfig_t signal_dimensions =
+        {.channels=1, .domain=MHA_WAVEFORM, .fragsize=96, .wndlen=400,
+         .fftlen=800, .srate=44100};
+    const float bandwidth = 0.2f;
+    t::plugins::dll::cfg_t cfg = {signal_dimensions,bandwidth,"CLOCK_REALTIME"};
+    struct timespec ts_expected = {.tv_sec=0, .tv_nsec=0};
+    double d_expected = std::numeric_limits<double>::quiet_NaN();
+    ASSERT_EQ(0, clock_gettime(CLOCK_REALTIME, &ts_expected));
+    d_expected = ts_expected.tv_sec + ts_expected.tv_nsec / 1e9;
+    double d_actual = cfg.process();
+    EXPECT_NEAR(d_expected, d_actual, 1e-6); // tolerance may need extension
+    EXPECT_LT(d_expected, d_actual);
+}
+
 // Local variables:
 // compile-command: "make unit-tests"
 // c-basic-offset: 4

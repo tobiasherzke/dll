@@ -11,7 +11,7 @@ namespace t::plugins::dll {
         cfg_t(const mhaconfig_t & signal_dimensions,
               const float bandwidth,
               const std::string & clock_source_name);
-
+        virtual ~cfg_t() = default;
         /** Block update rate / Hz */
         const float F;
 
@@ -35,6 +35,13 @@ namespace t::plugins::dll {
 
         /** which clock clock_gettime should use */
         clockid_t clock_source;
+
+        /** Queries the clock. Invokes filter_time.
+         * @return the filtered time */
+        virtual double process();
+
+        /** Filters the input time */
+        virtual double filter_time(double unfiltered_time);
     };
 
     /** Interface class of MHA plugin which implements the time smoothing filter
