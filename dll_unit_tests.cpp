@@ -57,6 +57,9 @@ TEST(if_t, prepare_propagates_correct_parameters) {
     EXPECT_EQ(sqrtf(2)*omega, cfg->b);
     // test 2nd order parameter
     EXPECT_EQ(omega*omega, cfg->c);
+    // test nper and tper constants
+    EXPECT_EQ(signal_dimensions.fragsize, cfg->nper);
+    EXPECT_EQ(signal_dimensions.fragsize / signal_dimensions.srate, cfg->tper);
 }
 
 // Local variables:

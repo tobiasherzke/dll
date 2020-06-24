@@ -8,6 +8,8 @@ dll::cfg_t::cfg_t(const mhaconfig_t & signal_dimensions, float bandwidth)
     , B(bandwidth)
     , b(sqrtf(8) * float(M_PI) * B / F)
     , c(b*b/2)
+    , nper(signal_dimensions.fragsize)
+    , tper(signal_dimensions.fragsize / signal_dimensions.srate)
 {}
 
 dll::if_t::if_t(const algo_comm_t & algo_comm,

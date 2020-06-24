@@ -24,6 +24,12 @@ namespace t::plugins::dll {
 
         /** 2nd order parameter, (2piB/F)^2 */
         float c;
+
+        /** number of samples per block */
+        uint64_t nper;
+
+        /** duration of 1 block in seconds */
+        float tper;
     };
 
     /** Interface class of MHA plugin which implements the time smoothing filter
