@@ -14,21 +14,24 @@ public:
     MOCK_METHOD(void, update, (), (override)); // detect callbacks to update()
 };
 
-TEST(if_t, has_patchbay_connect_bandwidth_to_update) {
+class if_t_fixture : public ::testing::Test {
+public:
     MHAKernel::algo_comm_class_t algo_comm;
     mock_if_t dll = {algo_comm.get_c_handle(), "", "dllplugin"};
+    mhaconfig_t signal_dimensions =
+        {.channels=1, .domain=MHA_WAVEFORM, .fragsize=96, .wndlen=400,
+         .fftlen=800, .srate=44100};
+};
+
+TEST_F(if_t_fixture, has_patchbay_connect_bandwidth_to_update) {
     (void) dll.patchbay; // has patchbay member
     (void) dll.bandwidth;// has bandwidth member
     EXPECT_CALL(dll, update()).Times(1);
     dll.parse("bandwidth=0.2");
 }
 
-TEST(if_t, prepare_pushes_config_replaces_NaN) {
-    MHAKernel::algo_comm_class_t algo_comm;
+TEST_F(if_t_fixture, prepare_pushes_config_replaces_NaN) {
     public_if_t dll = {algo_comm.get_c_handle(), "", "dllplugin"};
-    mhaconfig_t signal_dimensions =
-        {.channels=1, .domain=MHA_WAVEFORM, .fragsize=96, .wndlen=400,
-         .fftlen=800, .srate=44100};
     EXPECT_EQ("nan", dll.parse("bandwidth?val"));
     EXPECT_THROW(dll.poll_config(), MHA_Error);
     dll.prepare_(signal_dimensions);
@@ -36,13 +39,28 @@ TEST(if_t, prepare_pushes_config_replaces_NaN) {
     ASSERT_NO_THROW(dll.poll_config());
 }
 
-TEST(if_t, prepare_propagates_correct_parameters) {
-    MHAKernel::algo_comm_class_t algo_comm;
+TEST_F(if_t_fixture, all_clock_sources) {
+    const std::vector<std::string> clock_source_names =
+        {// from the clock_gettime man page:
+         "CLOCK_REALTIME",
+         "CLOCK_BOOTTIME",
+         "CLOCK_MONOTONIC",
+         "CLOCK_MONOTONIC_COARSE",
+         "CLOCK_MONOTONIC_RAW",
+         "CLOCK_PROCESS_CPUTIME_ID",
+         "CLOCK_REALTIME_COARSE",
+         "CLOCK_THREAD_CPUTIME_ID"};
+    EXPECT_CALL(dll, update()).Times(clock_source_names.size());    
+    for (const std::string & name : clock_source_names) {
+        EXPECT_NO_THROW(dll.parse("clock_source="+name)) << name;
+        EXPECT_EQ(name, dll.parse("clock_source?val"));
+    }
+    EXPECT_THROW(dll.parse("clock_source=invalid_name"), MHA_Error);
+}
+
+TEST_F(if_t_fixture, prepare_propagates_correct_parameters) {
     public_if_t dll = {algo_comm.get_c_handle(), "", "dllplugin"};
     dll.parse("bandwidth=1");
-    mhaconfig_t signal_dimensions =
-        {.channels=1, .domain=MHA_WAVEFORM, .fragsize=96, .wndlen=400,
-         .fftlen=800, .srate=44100};
     dll.prepare_(signal_dimensions);
     // Next line tests also that the namespace exists!
     t::plugins::dll::cfg_t * cfg = dll.poll_config();

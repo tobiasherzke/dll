@@ -25,6 +25,8 @@ dll::if_t::if_t(const algo_comm_t & algo_comm,
     (void) thread_name;
     insert_member(bandwidth);
     patchbay.connect(&bandwidth.writeaccess, this, &if_t::update);
+    insert_member(clock_source);
+    patchbay.connect(&clock_source.writeaccess, this, &if_t::update);
 }
 
 void dll::if_t::prepare(mhaconfig_t& tf)

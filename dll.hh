@@ -72,6 +72,13 @@ namespace t::plugins::dll {
         MHAParser::float_t bandwidth =
             {"Bandwidth of the delay-locked-loop in Hz." ,"NaN", "]0,]"};
 
+        MHAParser::kw_t clock_source =
+            {"Clock source for unfiltered times, see man clock_gettime",
+             "CLOCK_REALTIME","[CLOCK_REALTIME CLOCK_REALTIME_COARSE"
+             " CLOCK_MONOTONIC CLOCK_MONOTONIC_COARSE CLOCK_MONOTONIC_RAW"
+             " CLOCK_BOOTTIME CLOCK_PROCESS_CPUTIME_ID CLOCK_THREAD_CPUTIME_ID]"
+            };
+
         virtual void update(void);
     };
 }
