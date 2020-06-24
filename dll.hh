@@ -11,25 +11,25 @@ namespace t::plugins::dll {
         cfg_t(const mhaconfig_t & signal_dimensions, float bandwidth);
 
         /** Block update rate / Hz */
-        float F;
+        const float F;
 
         /** Bandwidth of block update rate */
-        float B;
+        const float B;
 
         /** 0th order parameter, always 0 */
         static constexpr float a = 0.0f;
 
         /** 1st order parameter, sqrt(2)2piB/F */
-        float b;
+        const float b;
 
         /** 2nd order parameter, (2piB/F)^2 */
-        float c;
+        const float c;
 
         /** number of samples per block */
-        uint64_t nper;
+        const uint64_t nper;
 
         /** duration of 1 block in seconds */
-        float tper;
+        const float tper;
     };
 
     /** Interface class of MHA plugin which implements the time smoothing filter
