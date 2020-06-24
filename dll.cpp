@@ -3,14 +3,28 @@
 
 namespace dll = t::plugins::dll;
 
-dll::cfg_t::cfg_t(const mhaconfig_t & signal_dimensions, float bandwidth)
+dll::cfg_t::cfg_t(const mhaconfig_t & signal_dimensions,
+                  const float bandwidth,
+                  const std::string & clock_source_name)
     : F(signal_dimensions.srate / signal_dimensions.fragsize)
     , B(bandwidth)
     , b(sqrtf(8) * float(M_PI) * B / F)
     , c(b*b/2)
     , nper(signal_dimensions.fragsize)
     , tper(signal_dimensions.fragsize / signal_dimensions.srate)
-{}
+{
+#define checkassignclocksource(whichclock) \
+    if (clock_source_name == #whichclock)  \
+        clock_source = whichclock;
+    checkassignclocksource(CLOCK_REALTIME);
+    checkassignclocksource(CLOCK_REALTIME_COARSE);
+    checkassignclocksource(CLOCK_MONOTONIC);
+    checkassignclocksource(CLOCK_MONOTONIC_COARSE);
+    checkassignclocksource(CLOCK_MONOTONIC_RAW);
+    checkassignclocksource(CLOCK_BOOTTIME);
+    checkassignclocksource(CLOCK_PROCESS_CPUTIME_ID);
+    checkassignclocksource(CLOCK_THREAD_CPUTIME_ID);
+}
 
 dll::if_t::if_t(const algo_comm_t & algo_comm,
                         const std::string & thread_name,
@@ -44,7 +58,8 @@ void dll::if_t::release()
 void dll::if_t::update()
 {
     if (is_prepared())
-        push_config(new cfg_t(input_cfg(), bandwidth.data));
+        push_config(new cfg_t(input_cfg(), bandwidth.data,
+                              clock_source.data.get_value()));
 }
 
 mha_wave_t* dll::if_t::process(mha_wave_t* s)

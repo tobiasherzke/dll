@@ -8,7 +8,9 @@ namespace t::plugins::dll {
         http://kokkinizita.linuxaudio.org/papers/usingdll.pdf */
     class cfg_t {
     public:
-        cfg_t(const mhaconfig_t & signal_dimensions, float bandwidth);
+        cfg_t(const mhaconfig_t & signal_dimensions,
+              const float bandwidth,
+              const std::string & clock_source_name);
 
         /** Block update rate / Hz */
         const float F;
@@ -30,6 +32,9 @@ namespace t::plugins::dll {
 
         /** duration of 1 block in seconds */
         const float tper;
+
+        /** which clock clock_gettime should use */
+        clockid_t clock_source;
     };
 
     /** Interface class of MHA plugin which implements the time smoothing filter

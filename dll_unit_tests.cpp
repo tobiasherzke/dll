@@ -50,7 +50,7 @@ TEST_F(if_t_fixture, all_clock_sources) {
          "CLOCK_PROCESS_CPUTIME_ID",
          "CLOCK_REALTIME_COARSE",
          "CLOCK_THREAD_CPUTIME_ID"};
-    EXPECT_CALL(dll, update()).Times(clock_source_names.size());    
+    EXPECT_CALL(dll, update()).Times(clock_source_names.size());
     for (const std::string & name : clock_source_names) {
         EXPECT_NO_THROW(dll.parse("clock_source="+name)) << name;
         EXPECT_EQ(name, dll.parse("clock_source?val"));
@@ -78,6 +78,24 @@ TEST_F(if_t_fixture, prepare_propagates_correct_parameters) {
     // test nper and tper constants
     EXPECT_EQ(signal_dimensions.fragsize, cfg->nper);
     EXPECT_EQ(signal_dimensions.fragsize / signal_dimensions.srate, cfg->tper);
+}
+
+TEST_F(if_t_fixture, propagate_clock_sources) {
+    public_if_t dll = {algo_comm.get_c_handle(), "", "dllplugin"};
+    const std::map<std::string, clockid_t> clock_sources =
+        {{"CLOCK_REALTIME", CLOCK_REALTIME},
+         {"CLOCK_BOOTTIME", CLOCK_BOOTTIME},
+         {"CLOCK_MONOTONIC", CLOCK_MONOTONIC},
+         {"CLOCK_MONOTONIC_COARSE", CLOCK_MONOTONIC_COARSE},
+         {"CLOCK_MONOTONIC_RAW", CLOCK_MONOTONIC_RAW},
+         {"CLOCK_PROCESS_CPUTIME_ID", CLOCK_PROCESS_CPUTIME_ID},
+         {"CLOCK_REALTIME_COARSE", CLOCK_REALTIME_COARSE},
+         {"CLOCK_THREAD_CPUTIME_ID", CLOCK_THREAD_CPUTIME_ID}};
+    dll.prepare_(signal_dimensions);
+    for (const auto & [name,id] : clock_sources) {
+        dll.parse("clock_source="+name);
+        EXPECT_EQ(id, dll.poll_config()->clock_source) << name;
+    }
 }
 
 // Local variables:
