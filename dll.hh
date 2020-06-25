@@ -9,32 +9,54 @@ namespace t::plugins::dll {
     class cfg_t {
     public:
         cfg_t(const mhaconfig_t & signal_dimensions,
-              const float bandwidth,
+              const double bandwidth,
               const std::string & clock_source_name);
         virtual ~cfg_t() = default;
         /** Block update rate / Hz */
-        const float F;
+        const double F;
 
         /** Bandwidth of block update rate */
-        const float B;
+        const double B;
 
         /** 0th order parameter, always 0 */
-        static constexpr float a = 0.0f;
+        static constexpr double a = 0.0f;
 
         /** 1st order parameter, sqrt(2)2piB/F */
-        const float b;
+        const double b;
 
         /** 2nd order parameter, (2piB/F)^2 */
-        const float c;
+        const double c;
 
         /** number of samples per block */
         const uint64_t nper;
 
-        /** duration of 1 block in seconds */
-        const float tper;
+        /** nominal duration of 1 block in seconds */
+        const double tper;
 
         /** which clock clock_gettime should use */
         clockid_t clock_source;
+
+        /** actual duration of 1 block of audio, in seconds.
+         * Initialized to nominal block duration at startup and after
+         * dropouts, then adapted to measured duration by the dll. */
+        double e2;
+
+        /** start time of the current block as predicted by the dll. */
+        double t0;
+
+        /** start time of the next block as predicted by the dll. */
+        double t1;
+
+        /** Total sample index of first sample in current block.
+         * Reset to zero for every dropout. */
+        uint64_t n0 = {0U};
+
+        /** Total sample index of first sample in next block.
+         * Reset to zero for every dropout. */
+        uint64_t n1 = {0U};
+
+        /** Difference between measured and predicted time. Adapts loop.*/
+        double e;
 
         /** Queries the clock. Invokes filter_time.
          * @return the filtered time */
@@ -42,6 +64,14 @@ namespace t::plugins::dll {
 
         /** Filters the input time */
         virtual double filter_time(double unfiltered_time);
+
+        /** Filter the time for the first time: Initialize the loop state.
+         * @return unmodified input time */
+        virtual double dll_init(double unfiltered_time);
+
+        /** Filter the time regularly: Update the loop state.
+         * @return the prediction from last invocation. */
+        virtual double dll_update(double unfiltered_time);
     };
 
     /** Interface class of MHA plugin which implements the time smoothing filter

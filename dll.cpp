@@ -4,14 +4,14 @@
 namespace dll = t::plugins::dll;
 
 dll::cfg_t::cfg_t(const mhaconfig_t & signal_dimensions,
-                  const float bandwidth,
+                  const double bandwidth,
                   const std::string & clock_source_name)
-    : F(signal_dimensions.srate / signal_dimensions.fragsize)
+    : F(double(signal_dimensions.srate) / signal_dimensions.fragsize)
     , B(bandwidth)
-    , b(sqrtf(8) * float(M_PI) * B / F)
+    , b(sqrt(8) * M_PI * B / F)
     , c(b*b/2)
     , nper(signal_dimensions.fragsize)
-    , tper(signal_dimensions.fragsize / signal_dimensions.srate)
+    , tper(signal_dimensions.fragsize / double(signal_dimensions.srate))
 {
 #define checkassignclocksource(whichclock) \
     if (clock_source_name == #whichclock)  \
@@ -37,7 +37,30 @@ double dll::cfg_t::process()
 
 double dll::cfg_t::filter_time(double unfiltered_time)
 {
-    return unfiltered_time;
+    if (n1 == 0U)
+        return dll_init(unfiltered_time);
+    return dll_update(unfiltered_time);
+}
+
+double dll::cfg_t::dll_init(double unfiltered_time)
+{
+    e2 = tper;
+    t0 = unfiltered_time;
+    t1 = t0 + e2;
+    n0 = 0;
+    n1 = nper;
+    return t0;
+}
+
+double dll::cfg_t::dll_update(double unfiltered_time)
+{
+    e = unfiltered_time - t1;
+    t0 = t1;
+    t1 += b*e + e2;
+    e2 += c*e;
+    n0 = n1;
+    n1 += nper;
+    return t0;
 }
 
 dll::if_t::if_t(const algo_comm_t & algo_comm,
