@@ -101,17 +101,13 @@ void dll::if_t::update()
 
 mha_wave_t* dll::if_t::process(mha_wave_t* s)
 {
-    struct timespec time_spec = {.tv_sec = 0, .tv_nsec = 0};
-    int err = clock_gettime(CLOCK_REALTIME, &time_spec);
-    if (err)
-        filtered_time.data = std::numeric_limits<double>::quiet_NaN();
-    else
-        filtered_time.data = time_spec.tv_sec + time_spec.tv_nsec / 1e9;
+    filtered_time.data = poll_config()->process();
     return s;
 }
 
 mha_spec_t* dll::if_t::process(mha_spec_t* s)
 {
+    filtered_time.data = poll_config()->process();
     return s;
 }
 
