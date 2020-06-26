@@ -59,8 +59,9 @@ namespace t::plugins::dll {
         double e;
 
         /** Queries the clock. Invokes filter_time.
-         * @return the filtered time */
-        virtual double process();
+         * @return the filtered start times of this and the next buffer
+         *         in seconds  */
+        virtual std::pair<double,double> process();
 
         /** Filters the input time */
         virtual double filter_time(double unfiltered_time);
@@ -89,14 +90,10 @@ namespace t::plugins::dll {
              const std::string & thread_name,
              const std::string & algo_name);
 
-        /** Process callback for processing time domain signal. Input signal
-         * is not used. 
+        /** Process callback for processing time domain or STFT signal.
+         * Input signal is not used. 
          * @return unmodified pointer to input signal */
-        mha_wave_t* process(mha_wave_t*);
-        /** Process callback for processing STFT signal. Input signal
-         * is not used. 
-         * @return unmodified pointer to input signal */
-        mha_spec_t* process(mha_spec_t*);
+        template<class mha_xxxx_t> mha_xxxx_t* process(mha_xxxx_t*);
         /** Prepare for signal processing.
          * @param signal_dimensions Signal metadata:
          *                          srate and fragsize are used. */
@@ -106,10 +103,14 @@ namespace t::plugins::dll {
 
         /** Connects configuration events to actions. */
         MHAEvents::patchbay_t<if_t> patchbay;
-        
-        /** Time of buffer start filtered with a delay locked loop published as
-         * AC variable */
-        MHA_AC::double_t filtered_time;
+
+        /** Start time of current buffer filtered with a delay locked loop
+         * published as AC variable */
+        MHA_AC::double_t filtered_time_t0;
+
+        /** Start time of next buffer filtered with a delay locked loop
+         * published as AC variable */
+        MHA_AC::double_t filtered_time_t1;
 
         MHAParser::float_t bandwidth =
             {"Bandwidth of the delay-locked-loop in Hz." ,"NaN", "]0,]"};

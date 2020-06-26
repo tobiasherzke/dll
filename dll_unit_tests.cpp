@@ -127,7 +127,7 @@ TEST(cfg_t, process_queries_correct_clock) {
     double d_expected = std::numeric_limits<double>::quiet_NaN();
     ASSERT_EQ(0, clock_gettime(CLOCK_REALTIME, &ts_expected));
     d_expected = ts_expected.tv_sec + ts_expected.tv_nsec / 1e9;
-    double d_actual = cfg.process();
+    double d_actual = cfg.process().first;
     EXPECT_NEAR(d_expected, d_actual, 1e-6); // tolerance may need extension
     EXPECT_LT(d_expected, d_actual);
 }

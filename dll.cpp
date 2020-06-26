@@ -26,13 +26,14 @@ dll::cfg_t::cfg_t(const mhaconfig_t & signal_dimensions,
     checkassignclocksource(CLOCK_THREAD_CPUTIME_ID);
 }
 
-double dll::cfg_t::process()
+std::pair<double,double> dll::cfg_t::process()
 {
     struct timespec timespec = {.tv_sec = 0, .tv_nsec = 0};
     double unfiltered_time = std::numeric_limits<double>::quiet_NaN();
     if (clock_gettime(clock_source, &timespec) == 0)
         unfiltered_time = timespec.tv_sec + timespec.tv_nsec * 1e-9;
-    return filter_time(unfiltered_time);
+    filter_time(unfiltered_time);
+    return {t0,t1};
 }
 
 double dll::cfg_t::filter_time(double unfiltered_time)
@@ -68,10 +69,15 @@ dll::if_t::if_t(const algo_comm_t & algo_comm,
                         const std::string & algo_name)
     : MHAPlugin::plugin_t<cfg_t>("Gets current time in seconds during each"
                                  " process callback, filters it and publishes"
-                                 " the result as AC variable " + algo_name,
+                                 " the result as AC variables " + algo_name +
+                                 "_t0 and " + algo_name + "_t1 (filtered start"
+                                 " times of current and next buffers in"
+                                 " seconds)",
                                  algo_comm)
-    , filtered_time(algo_comm, algo_name,
-                    std::numeric_limits<double>::quiet_NaN())
+    , filtered_time_t0(algo_comm, algo_name + "_t0",
+                       std::numeric_limits<double>::quiet_NaN())
+    , filtered_time_t1(algo_comm, algo_name + "_t1",
+                       std::numeric_limits<double>::quiet_NaN())
 {
     (void) thread_name;
     insert_member(bandwidth);
@@ -82,7 +88,8 @@ dll::if_t::if_t(const algo_comm_t & algo_comm,
 
 void dll::if_t::prepare(mhaconfig_t& tf)
 {
-    filtered_time.data = std::numeric_limits<double>::quiet_NaN();
+    filtered_time_t0.data = filtered_time_t1.data =
+        std::numeric_limits<double>::quiet_NaN();
     if (isnanf(bandwidth.data))
         bandwidth.data = 19.2f / tf.fragsize;
     update();
@@ -99,15 +106,12 @@ void dll::if_t::update()
                               clock_source.data.get_value()));
 }
 
-mha_wave_t* dll::if_t::process(mha_wave_t* s)
+template<class mha_xxxx_t> // "xxxx" is either "wave" or "spec"
+mha_xxxx_t* dll::if_t::process(mha_xxxx_t* s)
 {
-    filtered_time.data = poll_config()->process();
-    return s;
-}
-
-mha_spec_t* dll::if_t::process(mha_spec_t* s)
-{
-    filtered_time.data = poll_config()->process();
+    std::pair<double,double> t0_t1 = poll_config()->process();
+    filtered_time_t0.data = t0_t1.first;
+    filtered_time_t1.data = t0_t1.second;
     return s;
 }
 
