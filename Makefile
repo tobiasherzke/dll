@@ -2,7 +2,10 @@ include /usr/share/openmha/config.mk
 CXX=g++$(GCC_VER)
 CXXFLAGS += -I/usr/include/openmha -Igoogletest/include
 LDLIBS += -lopenmha -pthread
+plugins: dll.so metronome.so
 dll.so: dll.o
+	$(CXX) -shared -o $@ $(CXXFLAGS) $^ $(LDFLAGS) $(LDLIBS)
+metronome.so: metronome.o
 	$(CXX) -shared -o $@ $(CXXFLAGS) $^ $(LDFLAGS) $(LDLIBS)
 dll.o: dll.cpp dll.hh
 dll_unit_tests.o: dll_unit_tests.cpp dll.hh
