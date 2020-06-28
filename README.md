@@ -27,9 +27,9 @@ deb [arch=armhf] http://apt.hoertech.de bionic universe
 to `/etc/apt/sources.list`, run
 ```
 wget -qO- https://apt.hoertech.de/openmha-packaging.pub | sudo apt-key add
-apt update
-apt install openmha libopenmha-dev g++-7 make git
-git clone git@github.com:tobiasherzke/dll
+sudo apt update
+sudo apt install --no-install-recommends openmha libopenmha-dev g++-7 make git 
+git clone https://github.com/tobiasherzke/dll
 cd dll
 make; make unit-tests
 ```
@@ -45,8 +45,8 @@ Other ARM devices do not need the compiler etc, just
 add the line to `etc/apt/sources` as above and install only the openmha base package:
 ```
 wget -qO- https://apt.hoertech.de/openmha-packaging.pub | sudo apt-key add
-apt update
-apt install openmha
+sudo apt update
+sudo apt install openmha
 ```
 
 # Execute
@@ -57,4 +57,8 @@ mha fragsize=96 srate=44100 nchannels_in=2 iolib=MHAIOalsa \
   mha.algos='[dll metronome]' mha.metronome.bpm=60 \
   io.format=S16_LE io.priority=55 cmd=start sleep=11
 ```
-Adapt to your own requirements.
+Adapt to your own requirements.  Remember to enable realtime priorities
+for the user executing the openMHA, e.g. with 
+```
+cat /etc/security/limits.d/audio.conf
+  
