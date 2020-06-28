@@ -24,7 +24,7 @@ namespace t::plugins::metronome {
               algo_comm_t ac)
             : t0_name(smoothed_time_base_name+"_t0")
             , t1_name(smoothed_time_base_name+"_t1")
-            , beats_per_second(bpm/60)
+            , beat_period(60/double(bpm))
             , replace(replace)
             , ac(ac)
         {
@@ -51,17 +51,18 @@ namespace t::plugins::metronome {
         std::unique_ptr<MHASignal::waveform_t> metronomesound;
         std::unique_ptr<MHASignal::waveform_t> future;
         const std::string t0_name, t1_name;
-        const double beats_per_second;
+        const double beat_period;
         const bool replace;
         algo_comm_t ac;
         
         /** Adds metronome beats to input/output signal. */
         virtual void process(mha_wave_t * s) {
-            double t0 = get_ac(t0_name);
-            double t1 = get_ac(t1_name);
+            double t0 = get_ac(t0_name) / beat_period;
+            double t1 = get_ac(t1_name) / beat_period;
             if (need_insert_new_activation(t0,t1)) {
-                insert_new_activation_at((ceil(t0) - t0) * s->num_frames
-                                         / (t1 - t0));
+                for (double beat = ceil(t0); beat <= floor(t1) + 0.5; ++beat)
+                    insert_new_activation_at((beat - t0) * s->num_frames
+                                             / (t1 - t0));
             }
             playback_and_update(s);
         }
