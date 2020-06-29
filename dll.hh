@@ -10,7 +10,8 @@ namespace t::plugins::dll {
     public:
         cfg_t(const mhaconfig_t & signal_dimensions,
               const double bandwidth,
-              const std::string & clock_source_name);
+              const std::string & clock_source_name,
+              const double adjustment = 0);
         virtual ~cfg_t() = default;
         /** Block update rate / Hz */
         const double F;
@@ -32,6 +33,9 @@ namespace t::plugins::dll {
 
         /** nominal duration of 1 block in seconds */
         const double tper;
+
+        /** Adjustment added to the filtered time stamps (in seconds) */
+        const double adjustment;
 
         /** which clock clock_gettime should use */
         clockid_t clock_source;
@@ -121,6 +125,10 @@ namespace t::plugins::dll {
              " CLOCK_MONOTONIC CLOCK_MONOTONIC_COARSE CLOCK_MONOTONIC_RAW"
              " CLOCK_BOOTTIME CLOCK_PROCESS_CPUTIME_ID CLOCK_THREAD_CPUTIME_ID]"
             };
+
+        MHAParser::float_t adjustment =
+            {"Additive adjustment for the filtered times, can e.g. be used to\n"
+             "account for either input or output latency", "0", "[,]"};
 
         virtual void update(void);
     };

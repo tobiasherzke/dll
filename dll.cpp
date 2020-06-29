@@ -5,13 +5,15 @@ namespace dll = t::plugins::dll;
 
 dll::cfg_t::cfg_t(const mhaconfig_t & signal_dimensions,
                   const double bandwidth,
-                  const std::string & clock_source_name)
+                  const std::string & clock_source_name,
+                  const double adjustment)
     : F(double(signal_dimensions.srate) / signal_dimensions.fragsize)
     , B(bandwidth)
     , b(sqrt(8) * M_PI * B / F)
     , c(b*b/2)
     , nper(signal_dimensions.fragsize)
     , tper(signal_dimensions.fragsize / double(signal_dimensions.srate))
+    , adjustment(adjustment)
 {
 #define checkassignclocksource(whichclock) \
     if (clock_source_name == #whichclock)  \
@@ -33,7 +35,7 @@ std::pair<double,double> dll::cfg_t::process()
     if (clock_gettime(clock_source, &timespec) == 0)
         unfiltered_time = timespec.tv_sec + timespec.tv_nsec * 1e-9;
     filter_time(unfiltered_time);
-    return {t0,t1};
+    return {t0+adjustment, t1+adjustment};
 }
 
 double dll::cfg_t::filter_time(double unfiltered_time)
@@ -84,6 +86,8 @@ dll::if_t::if_t(const algo_comm_t & algo_comm,
     patchbay.connect(&bandwidth.writeaccess, this, &if_t::update);
     insert_member(clock_source);
     patchbay.connect(&clock_source.writeaccess, this, &if_t::update);
+    insert_member(adjustment);
+    patchbay.connect(&adjustment.writeaccess, this, &if_t::update);
 }
 
 void dll::if_t::prepare(mhaconfig_t& tf)
@@ -103,7 +107,8 @@ void dll::if_t::update()
 {
     if (is_prepared())
         push_config(new cfg_t(input_cfg(), bandwidth.data,
-                              clock_source.data.get_value()));
+                              clock_source.data.get_value(),
+                              adjustment.data));
 }
 
 template<class mha_xxxx_t> // "xxxx" is either "wave" or "spec"
