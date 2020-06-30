@@ -26,7 +26,7 @@ namespace t::plugins::wav2lsl {
             , t1_name(smoothed_time_base_name+"_t1")
             , lsl_info(name, "Audio", signal_dimensions.channels,
                        signal_dimensions.srate, lsl::cf_float32, lsl_id)
-            , lsl_outlet(lsl_info, signal_dimensions.fragsize, 1)
+            , lsl_outlet(lsl_info, signal_dimensions.fragsize, 5)
             , lsl_timestamps(signal_dimensions.fragsize, 0.0)
             , ac(ac)
         {

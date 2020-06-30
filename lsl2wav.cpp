@@ -46,7 +46,7 @@ namespace t::plugins::lsl2wav {
             }
             if (index < lsl_infos.size())
                 lsl_inlet = std::make_unique<lsl::stream_inlet>
-                    (lsl_infos[index], 1, d.fragsize);
+                    (lsl_infos[index], 5, d.fragsize);
             else
                 throw MHA_Error(__FILE__, __LINE__, "No LSL stream with name \""
                                 "%s\", type \"Audio\", srate %f and %u channels"
