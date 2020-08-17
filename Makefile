@@ -1,18 +1,13 @@
 include /usr/share/openmha/config.mk
 CXX=g++$(GCC_VER)
-CXXFLAGS += -I/usr/include/openmha -Igoogletest/include
+CXXFLAGS += -I/usr/include/openmha -Igoogletest/include -fPIC
 LDLIBS += -lopenmha -pthread
-plugins: dll.so metronome.so wav2lsl.so lsl2wav.so
-dll.so: dll.o
-	$(CXX) -shared -o $@ $(CXXFLAGS) $^ $(LDFLAGS) $(LDLIBS)
-metronome.so: metronome.o
-	$(CXX) -shared -o $@ $(CXXFLAGS) $^ $(LDFLAGS) $(LDLIBS)
+plugins: dll.so metronome.so wav2lsl.so lsl2wav.so timestamper.so
+%.so: %.o
+	$(CXX) -shared -fPIC -o $@ $(CXXFLAGS) $^ $(LDFLAGS) $(LDLIBS)
 wav2lsl.so lsl2wav.so: LDLIBS += -llsl
-wav2lsl.so: wav2lsl.o
-	$(CXX) -shared -o $@ $(CXXFLAGS) $^ $(LDFLAGS) $(LDLIBS)
-lsl2wav.so: lsl2wav.o
-	$(CXX) -shared -o $@ $(CXXFLAGS) $^ $(LDFLAGS) $(LDLIBS)
 dll.o: dll.cpp dll.hh
+timestamper.o: timestamper.cpp timestamper.hh
 dll_unit_tests.o: dll_unit_tests.cpp dll.hh googletest/include/gmock/gmock.h
 unit-tests: unit-test-runner
 	./unit-test-runner
@@ -30,4 +25,4 @@ googletest/CMakeLists.txt:
 	git clone https://github.com/google/googletest
 
 clean:
-	rm -f dll.o dll.so dll_unit_tests.o unit-test-runner
+	rm -f *.so *.o unit-test-runner

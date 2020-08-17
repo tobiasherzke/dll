@@ -28,7 +28,7 @@ to `/etc/apt/sources.list`, run
 ```
 wget -qO- https://apt.hoertech.de/openmha-packaging.pub | sudo apt-key add
 sudo apt update
-sudo apt install --no-install-recommends openmha libopenmha-dev g++-7 make git 
+sudo apt install --no-install-recommends openmha libopenmha-dev g++-7 make git cmake 
 git clone https://github.com/tobiasherzke/dll
 cd dll
 make; make unit-tests
@@ -61,4 +61,7 @@ Adapt to your own requirements.  Remember to enable realtime priorities
 for the user executing the openMHA, e.g. with 
 ```
 cat /etc/security/limits.d/audio.conf
-  
+
+@audio   -  rtprio     95
+@audio   -  memlock    unlimited
+```
