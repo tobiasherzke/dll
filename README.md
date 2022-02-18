@@ -63,7 +63,7 @@ deb [arch=armhf] http://apt.hoertech.de bionic universe
 ```
 to `/etc/apt/sources.list`, run
 ```
-wget -qO- https://apt.hoertech.de/openmha-packaging.pub | sudo apt-key add
+wget -qO- http://apt.hoertech.de/openmha-packaging.pub | sudo apt-key add
 sudo apt update
 sudo apt install --no-install-recommends openmha libopenmha-dev g++-7 make git cmake
 git clone https://github.com/tobiasherzke/dll
