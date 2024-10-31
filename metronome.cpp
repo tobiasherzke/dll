@@ -21,7 +21,7 @@ namespace t::plugins::metronome {
               const float bpm,
               const std::string & smoothed_time_base_name,
               bool replace,
-              algo_comm_t ac)
+              algo_comm_t & ac)
             : t0_name(smoothed_time_base_name+"_t0")
             , t1_name(smoothed_time_base_name+"_t1")
             , beat_period(60/double(bpm))
@@ -53,7 +53,7 @@ namespace t::plugins::metronome {
         const std::string t0_name, t1_name;
         const double beat_period;
         const bool replace;
-        algo_comm_t ac;
+        algo_comm_t & ac;
         
         /** Adds metronome beats to input/output signal. */
         virtual void process(mha_wave_t * s) {
@@ -67,9 +67,10 @@ namespace t::plugins::metronome {
             playback_and_update(s);
         }
         double get_ac(const std::string & name) {
-            comm_var_t cv = {};
-            if (ac.get_var(ac.handle, name.c_str(), &cv) ||
-                cv.data_type != MHA_AC_DOUBLE || cv.num_entries != 1 ||
+            if (ac.is_var(name) == false)
+                return std::numeric_limits<double>::quiet_NaN();
+            comm_var_t cv = ac.get_var(name);
+            if (cv.data_type != MHA_AC_DOUBLE || cv.num_entries != 1 ||
                 cv.data == nullptr)
                 return std::numeric_limits<double>::quiet_NaN();
             return *static_cast<const double*>(cv.data);
@@ -106,15 +107,13 @@ namespace t::plugins::metronome {
     public:
         /** Constructor
          * @param algo_comm AC variable space
-         * @param thread_name Unused
-         * @param algo_name Loaded name of plugin, used as AC variable name */
-        if_t(const algo_comm_t & algo_comm,
-             const std::string & thread_name,
-             const std::string & algo_name)
+         * @param configured_name Loaded name of plugin, unused */
+        if_t(algo_comm_t & algo_comm,
+             const std::string & configured_name)
             : MHAPlugin::plugin_t<cfg_t>("Plays metronome sound every second",
                                          algo_comm)
         {
-            (void) thread_name; (void) algo_name;
+            (void) configured_name;
             insert_member(dll_plugin_name);
             patchbay.connect(&dll_plugin_name.writeaccess, this, &if_t::update);
             insert_member(bpm);
@@ -130,9 +129,8 @@ namespace t::plugins::metronome {
             poll_config()->process(s);
             return s;
         }
-        /** Prepare for signal processing.
-         * @param signal_dimensions Signal metadata: */
-        void prepare(mhaconfig_t & signal_dimensions) {
+        /** Prepare for signal processing. */
+        void prepare(mhaconfig_t &) {
             update();
         }
         /** Empty implementation of release. */

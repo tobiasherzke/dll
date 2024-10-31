@@ -21,7 +21,7 @@ namespace t::plugins::wav2lsl {
               const std::string & smoothed_time_base_name,
               const std::string & name,
               const std::string & lsl_id,
-              algo_comm_t ac)
+              algo_comm_t & ac)
             : t0_name(smoothed_time_base_name+"_t0")
             , t1_name(smoothed_time_base_name+"_t1")
             , lsl_info(name, "Audio", signal_dimensions.channels,
@@ -39,7 +39,7 @@ namespace t::plugins::wav2lsl {
         lsl::stream_info lsl_info;
         lsl::stream_outlet lsl_outlet;
         std::vector<double> lsl_timestamps;
-        algo_comm_t ac;
+        algo_comm_t & ac;
         
         /** Adds metronome beats to input/output signal. */
         virtual void process(mha_wave_t * s) {
@@ -54,9 +54,10 @@ namespace t::plugins::wav2lsl {
             return &lsl_timestamps[0];
         }
         double get_ac(const std::string & name) {
-            comm_var_t cv = {};
-            if (ac.get_var(ac.handle, name.c_str(), &cv) ||
-                cv.data_type != MHA_AC_DOUBLE || cv.num_entries != 1 ||
+            if (ac.is_var(name) == false)
+                return std::numeric_limits<double>::quiet_NaN();
+            comm_var_t cv = ac.get_var(name);
+            if (cv.data_type != MHA_AC_DOUBLE || cv.num_entries != 1 ||
                 cv.data == nullptr)
                 return std::numeric_limits<double>::quiet_NaN();
             return *static_cast<const double*>(cv.data);
@@ -67,16 +68,11 @@ namespace t::plugins::wav2lsl {
     {
     public:
         /** Constructor
-         * @param algo_comm AC variable space
-         * @param thread_name Unused
-         * @param algo_name Loaded name of plugin, used as AC variable name */
-        if_t(const algo_comm_t & algo_comm,
-             const std::string & thread_name,
-             const std::string & algo_name)
-            : MHAPlugin::plugin_t<cfg_t>("Plays metronome sound every second",
+         * @param algo_comm AC variable space */
+        if_t(algo_comm_t & algo_comm, const std::string & /*configured_name*/)
+            : MHAPlugin::plugin_t<cfg_t>("Publishes audio as LSL stream",
                                          algo_comm)
         {
-            (void) thread_name; (void) algo_name;
             insert_member(dll_plugin_name);
             patchbay.connect(&dll_plugin_name.writeaccess, this, &if_t::update);
             insert_member(stream_name);
@@ -92,9 +88,8 @@ namespace t::plugins::wav2lsl {
             poll_config()->process(s);
             return s;
         }
-        /** Prepare for signal processing.
-         * @param signal_dimensions Signal metadata: */
-        void prepare(mhaconfig_t & signal_dimensions) {
+        /** Prepare for signal processing. */
+        void prepare(mhaconfig_t & /*signal_dimensions*/) {
             update();
         }
         /** Empty implementation of release. */

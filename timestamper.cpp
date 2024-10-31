@@ -26,21 +26,19 @@ double timestamper::cfg_t::process()
     return std::numeric_limits<double>::quiet_NaN();
 }
 
-timestamper::if_t::if_t(const algo_comm_t & algo_comm,
-                        const std::string & thread_name,
-                        const std::string & algo_name)
+timestamper::if_t::if_t(algo_comm_t & algo_comm,
+                        const std::string & configured_name)
     : MHAPlugin::plugin_t<cfg_t>("Gets current time in seconds during each"
-                                 " process callback and publishes"
-                                 " the result as AC variable " + algo_name,
+                                 " process callback and publishes the"
+                                 " result as AC variable " + configured_name,
                                  algo_comm)
-    , time(algo_comm, algo_name, std::numeric_limits<double>::quiet_NaN())
+    , time(algo_comm,configured_name, std::numeric_limits<double>::quiet_NaN())
 {
-    (void) thread_name;
     insert_member(clock_source);
     patchbay.connect(&clock_source.writeaccess, this, &if_t::update);
 }
 
-void timestamper::if_t::prepare(mhaconfig_t& tf)
+void timestamper::if_t::prepare(mhaconfig_t&)
 {
     time.data = std::numeric_limits<double>::quiet_NaN();
     update();

@@ -88,11 +88,9 @@ namespace t::plugins::dll {
     public:
         /** Constructor publishes the result AC variable.
          * @param algo_comm AC variable space
-         * @param thread_name Unused
-         * @param algo_name Loaded name of plugin, used as AC variable name */
-        if_t(const algo_comm_t & algo_comm,
-             const std::string & thread_name,
-             const std::string & algo_name);
+         * @param configured_name Loaded name of plugin, used as AC variable name */
+        if_t(algo_comm_t & algo_comm,
+             const std::string & configured_name);
 
         /** Process callback for processing time domain or STFT signal.
          * Input signal is not used. 

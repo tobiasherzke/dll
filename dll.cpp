@@ -66,22 +66,21 @@ double dll::cfg_t::dll_update(double unfiltered_time)
     return t0;
 }
 
-dll::if_t::if_t(const algo_comm_t & algo_comm,
-                        const std::string & thread_name,
-                        const std::string & algo_name)
+dll::if_t::if_t(algo_comm_t & algo_comm,
+                const std::string & configured_name)
     : MHAPlugin::plugin_t<cfg_t>("Gets current time in seconds during each"
                                  " process callback, filters it and publishes"
-                                 " the result as AC variables " + algo_name +
-                                 "_t0 and " + algo_name + "_t1 (filtered start"
+                                 " the result as AC variables " +
+                                 configured_name + "_t0 and " +
+                                 configured_name + "_t1 (filtered start"
                                  " times of current and next buffers in"
                                  " seconds)",
                                  algo_comm)
-    , filtered_time_t0(algo_comm, algo_name + "_t0",
+    , filtered_time_t0(algo_comm, configured_name + "_t0",
                        std::numeric_limits<double>::quiet_NaN())
-    , filtered_time_t1(algo_comm, algo_name + "_t1",
+    , filtered_time_t1(algo_comm, configured_name + "_t1",
                        std::numeric_limits<double>::quiet_NaN())
 {
-    (void) thread_name;
     insert_member(bandwidth);
     patchbay.connect(&bandwidth.writeaccess, this, &if_t::update);
     insert_member(clock_source);
